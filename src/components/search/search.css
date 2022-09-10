@@ -1,0 +1,113 @@
+.search {
+    padding-top: 20px;
+}
+
+.left-sidebar {
+    background-color: var(--w);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 0 10px #e8e8e8;
+    display: table;
+}
+
+.csv-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.csv-form .file-input-container {
+    position: relative;
+    background-color: var(--bb);
+    color: var(--w);
+    padding: 8px 10px;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.csv-form .file-input-container:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.csv-form .file-input-container.uploaded {
+    background-color: var(--green);
+}
+
+.csv-form .file-input-container input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80%;
+    opacity: 0;
+    box-sizing: border-box;
+}
+
+.csv-form .file-input-container input:hover {
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.csv-form button {
+    background-color: var(--bb);
+    color: var(--w);
+    padding: 8px 10px;
+    border: none;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.csv-form button:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.query-area {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.query-area select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border-color: #eef0f4;
+    color: #82888d;
+    font-weight: 500;
+}
+
+.query-area select:focus {
+    outline-color: #eef0f4;
+}
+
+.query-area input {
+    padding: 8px 10px;
+    border: none;
+    /* 1px solid var(--light-grey); */
+    background-color: #eef0f4;
+    color: #82888d;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.query-area input:focus {
+    outline-color: #eef0f4;
+}
+
+.query-area button {
+    padding: 8px 10px;
+    border: none;
+    background-color: var(--dark);
+    color: var(--w);
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.query-area button:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.2s;
+}

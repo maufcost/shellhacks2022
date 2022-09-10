@@ -1,4 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
+
+import './search.css'
+import './search-area.css'
+
+import SearchResult from '../search-result/search-result'
+
+import { ROW_SCHEMA } from '../../row-schema'
 
 const Search = () => {
     const [file, setFile] = useState(null)
@@ -134,6 +141,7 @@ const Search = () => {
     }
 
     const renderSecuritiesDropdown = () => {
+        if (!securities || (securities && securities.length <= 0)) return
         return (
             <select>
                 {securities.map((s, i) => {
@@ -145,27 +153,71 @@ const Search = () => {
         )
     }
 
+    const renderSearchSpace = () => {
+        if (!searchResults || (searchResults && searchResults.length <= 0)) {
+            return
+        }
+
+        return (
+            <div className="search-space">
+                <table>
+                    <tr>
+                        {ROW_SCHEMA.map((r, i) => {
+                            if (r === "Security ID") {
+                                return <th key={i} className="extra-left-pad">{r}</th>
+                            }
+
+                            return (
+                                <th key={i}>{r}</th>
+                            )
+                        })}
+                    </tr>
+                    <tbody>
+                        {searchResults.map((s, i) => <SearchResult key={i} {...s} />)}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
+
+    // Dynamically changing styles as actions are performed in
+    // the query
+    let uploadCSVButtonStyles = "file-input-container"
+    if (file) uploadCSVButtonStyles += " uploaded"
+
+    let uploadCSVButtonLabel = "Upload CSV"
+    if (file) uploadCSVButtonLabel = "CSV Uploaded!"
+
     return (
         <div className="search-container">
-            {renderSecuritiesDropdown()}
-            <div className="query-area">
-                <input
-                    type={"text"}
-                    value={query}
-                    onChange={handleQueryChange}
-                />
-                <button onClick={handleSearch}>Search</button>
+            <div className="search m-auto">
+                <div className="left-sidebar">
+                    <div className="csv-form">
+                        <button className={uploadCSVButtonStyles}>
+                            <p>{uploadCSVButtonLabel}</p>
+                            <input
+                                type={"file"}
+                                accept={".csv"}
+                                onChange={handleFileChange}
+                            />
+                        </button>
+                        <button onClick={e => handleFileImport(e)}>
+                            Import CSV
+                        </button>
+                    </div>
+                    <div className="query-area">
+                        {renderSecuritiesDropdown()}
+                        <input
+                            type={"text"}
+                            value={query}
+                            onChange={handleQueryChange}
+                            placeholder={"Search for securities or street IDs"}
+                        />
+                        <button onClick={handleSearch}>Search</button>
+                    </div>
+                </div>
+                {renderSearchSpace()}
             </div>
-            <form>
-                <input
-                    type={"file"}
-                    accept={".csv"}
-                    onChange={handleFileChange}
-                />
-                <button onClick={e => handleFileImport(e)}>
-                    Import CSV file
-                </button>
-            </form>
         </div>
     );
 }
