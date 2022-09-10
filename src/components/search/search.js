@@ -24,11 +24,11 @@ const Search = () => {
     const [csvArray, setCSVArray] = useState([])
     const [securities, setSecurities] = useState([])
     const [startEngine, setStartEngine] = useState(null)
-    const [selectedTab, setSelectedTab] = useState(null)
+    const [selectedTab, setSelectedTab] = useState(TAB_SECURITIES)
     const [searchResults, setSearchResults] = useState([])
     const [csvImportDone, setCSVImportDone] = useState(null)
 
-    const fileReader = new FileReader();
+    const fileReader = new FileReader()
 
     const handleFileChange = e => {
         if (!e) return
