@@ -1,5 +1,15 @@
 .search {
     padding-top: 20px;
+    opacity: 0;
+    animation: hello 2s linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes hello {
+    100% {
+        opacity: 1;
+    }
 }
 
 .left-sidebar {
@@ -7,7 +17,7 @@
     border-radius: 12px;
     padding: 10px;
     box-shadow: 0 0 10px #e8e8e8;
-    display: table;
+    width: 500px;
 }
 
 .csv-form {
@@ -69,6 +79,7 @@
     margin-top: 10px;
     display: flex;
     gap: 10px;
+    position: relative;
 }
 
 .query-area select {
@@ -80,21 +91,24 @@
 }
 
 .query-area select:focus {
-    outline-color: #eef0f4;
+    outline-color: var(--bb);
 }
 
 .query-area input {
     padding: 8px 10px;
+    padding-left: 32px;
     border: none;
     /* 1px solid var(--light-grey); */
     background-color: #eef0f4;
     color: #82888d;
     font-weight: 500;
     border-radius: 6px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .query-area input:focus {
-    outline-color: #eef0f4;
+    outline-color: var(--bb);
 }
 
 .query-area button {
@@ -110,4 +124,16 @@
     cursor: pointer;
     opacity: 0.8;
     transition: 0.2s;
+}
+
+.search-icon {
+    width: 16px;
+    z-index: 2;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.search-icon.scootch {
+    left: 164px;
 }

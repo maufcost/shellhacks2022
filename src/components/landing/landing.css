@@ -1,0 +1,72 @@
+.landing {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* gap: 30px; */
+    margin: 0 auto;
+    margin-top: 15%;
+}
+
+.landing h1 {
+    font-size: 6em;
+    line-height: 0.8em;
+    color: var(--dark);
+    margin: 0;
+    width: 60%;
+}
+
+.landing p {
+    color: #82888d;
+    font-weight: 300;
+    width: 40%;
+    margin: 0;
+    margin-top: 40px;
+    margin-bottom: 16px;
+}
+
+.landing button {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    color: var(--w);
+    border: none;
+    border-radius: 12px;
+    margin: 10px;
+    padding: 10px 22px;
+    background-size: 200% auto;
+    color: var(--w);
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    background-image: linear-gradient(to right, #e07d26 0%, #ffabf4 50%, #b01e4a 100%);
+    transition: 0.5s;
+    animation: buttonAnimation 1.4s linear infinite;
+}
+
+.landing button:hover {
+    background-position: right center;   
+}
+
+@keyframes buttonAnimation {
+    50% {
+        background-position: right center;  
+    }
+}
+
+.landing.fadeOut {
+    opacity: 1;
+    animation: fadeIn 2s linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

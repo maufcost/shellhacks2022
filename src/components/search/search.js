@@ -1,18 +1,32 @@
-import React, { useState } from "react"
+import React, { useState } from 'react'
 
+// Styling files
 import './search.css'
 import './search-area.css'
+import './tabs.css'
 
+// Sub-components
+import Landing from '../landing/landing'
+import Vulnerability from '../vulnerability/vulnerability'
 import SearchResult from '../search-result/search-result'
 
+// Assets
+import IconSearch from '../../assets/icon-search.svg'
+
+// Constants
 import { ROW_SCHEMA } from '../../row-schema'
+const TAB_WEB3 = "tab-web3"
+const TAB_SECURITIES = "tab-securities"
 
 const Search = () => {
     const [file, setFile] = useState(null)
     const [query, setQuery] = useState("")
     const [csvArray, setCSVArray] = useState([])
     const [securities, setSecurities] = useState([])
+    const [startEngine, setStartEngine] = useState(null)
+    const [selectedTab, setSelectedTab] = useState(null)
     const [searchResults, setSearchResults] = useState([])
+    const [csvImportDone, setCSVImportDone] = useState(null)
 
     const fileReader = new FileReader();
 
@@ -27,7 +41,6 @@ const Search = () => {
         if (file) {
             fileReader.onload = event => {
                 const csvOutput = event.target.result;
-                console.log(csvOutput)
                 convertCSVFileToArray(csvOutput)
                 fetchAvailableSecurities(csvOutput)
             };
@@ -57,12 +70,15 @@ const Search = () => {
             return obj
         });
 
-        console.log(csvArray)
         setCSVArray(csvArray)
     }
 
     const handleQueryChange = e => {
-        setQuery(e.target.value)
+        const val = e.target.value
+
+        if (val.trim() === "") setSearchResults([])
+
+        setQuery(val)
     }
 
     const handleSearch = () => {
@@ -83,8 +99,6 @@ const Search = () => {
             keys.splice("security_id", 1)
 
             for (let j = 0; j < keys.length; j++) {
-
-                console.log(csvArray[i][keys[j]])
 
                 const cellValue = csvArray[i][keys[j]]
 
@@ -112,7 +126,8 @@ const Search = () => {
                         content: csvArray[i],
                         // These properties are useful for
                         // our match highlight feature
-                        KeyWhereMatchWasFound: keys[j],
+                        keyWhereMatchWasFound: keys[j],
+                        placeWhereMatchWasFound: cellValue,
                         rowIndex: i,
                         priority
                     })
@@ -122,7 +137,6 @@ const Search = () => {
         
         // Processing search priorities (ordering
         // the search results according to their priority in ascending order)
-        console.log(results)
         results.sort((r1, r2) => r1.priority - r2.priority)
 
         setSearchResults(results)
@@ -180,17 +194,9 @@ const Search = () => {
         )
     }
 
-    // Dynamically changing styles as actions are performed in
-    // the query
-    let uploadCSVButtonStyles = "file-input-container"
-    if (file) uploadCSVButtonStyles += " uploaded"
-
-    let uploadCSVButtonLabel = "Upload CSV"
-    if (file) uploadCSVButtonLabel = "CSV Uploaded!"
-
-    return (
-        <div className="search-container">
-            <div className="search m-auto">
+    const renderTabContent = () => {
+        if (selectedTab === TAB_SECURITIES) {
+            return (
                 <div className="left-sidebar">
                     <div className="csv-form">
                         <button className={uploadCSVButtonStyles}>
@@ -201,12 +207,16 @@ const Search = () => {
                                 onChange={handleFileChange}
                             />
                         </button>
-                        <button onClick={e => handleFileImport(e)}>
+                        <button onClick={e => {
+                            handleFileImport(e)
+                            setCSVImportDone(true)
+                        }}>
                             Import CSV
                         </button>
                     </div>
                     <div className="query-area">
                         {renderSecuritiesDropdown()}
+                        <img className={searchIconStyles} src={IconSearch} />
                         <input
                             type={"text"}
                             value={query}
@@ -216,10 +226,64 @@ const Search = () => {
                         <button onClick={handleSearch}>Search</button>
                     </div>
                 </div>
-                {renderSearchSpace()}
+            )
+        }else if (selectedTab === TAB_WEB3) {
+            return <Vulnerability />
+        }
+    }
+
+    // Dynamically changing styles as actions are performed in
+    // the query
+
+    // Upload CSV button
+    let uploadCSVButtonStyles = "file-input-container"
+    if (file) uploadCSVButtonStyles += " uploaded"
+
+    let uploadCSVButtonLabel = "Upload CSV"
+    if (file) uploadCSVButtonLabel = "CSV Uploaded!"
+
+    // Tab button styles
+    let buttonSecuritiesStyles = ""
+    if (selectedTab === TAB_SECURITIES) buttonSecuritiesStyles += " tab-selected"
+
+    let buttonWeb3Styles = ""
+    if (selectedTab === TAB_WEB3) buttonWeb3Styles += " tab-selected"
+
+    // Search icon style
+    let searchIconStyles = "search-icon"
+    if (csvImportDone) searchIconStyles += " scootch"
+
+    // Showing the landing page before the actual search page
+    if (startEngine) {
+        return (
+            <div className="search-container">
+                <div className="search m-auto">
+                    <div className="tabs">
+                        <h2>Good morning, Mauricio ☀️</h2>
+                        <p>What are you searching for today?</p>
+                        <div className="tab-buttons">
+                            <button
+                                className={buttonSecuritiesStyles}
+                                onClick={() => setSelectedTab(TAB_SECURITIES)}
+                            >
+                                Securities & Street IDs
+                            </button>
+                            <button
+                                className={buttonWeb3Styles}
+                                onClick={() => setSelectedTab(TAB_WEB3)}
+                            >
+                                De-Vulnerabilities
+                            </button>
+                        </div>
+                    </div>
+                    {renderTabContent()}
+                    {renderSearchSpace()}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
+
+    return <Landing startEngine={() => setStartEngine(true)}/>
 }
 
 export default Search

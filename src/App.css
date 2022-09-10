@@ -18,6 +18,10 @@ html, body, .App {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg);
     position: relative;
+    background: url("./assets/bg.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 100% -60%;
 }
 
 .App {

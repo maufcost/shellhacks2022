@@ -1,0 +1,40 @@
+.tabs {
+    margin-bottom: 10px;
+    width: 520px;
+}
+
+.tabs p {
+    color: #9a9fa6;
+}
+
+.tabs .tab-buttons {
+    box-shadow: 0 0 10px #e8e8e8;
+    background-color: var(--w);
+    box-shadow: 0 0 10px #e8e8e8;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    /* display: table; */
+    padding: 10px;
+}
+
+.tabs button {
+    transition: 0.2s;
+    padding: 8px 10px;
+    border: none;
+    background-color: var(--w);
+    color: var(--dark);
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.tabs button:hover {
+    transition: 0.2s;
+    opacity: 0.8;
+    font-weight: 700;
+}
+
+.tabs button.tab-selected {
+    border-bottom: 4px solid var(--bb);
+}

@@ -1,0 +1,15 @@
+.flash-full-match {
+    background-color: #9eeb9d;
+    animation: flasher 2s linear infinite;
+}
+
+.flash-partial-match {
+    background-color: #ebe19b;
+    animation: flasher 2s linear infinite;
+}
+
+@keyframes flasher {
+    50% {
+        opacity: 0;
+    }
+}
