@@ -1,9 +1,16 @@
+from unittest import TextTestRunner
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
+from flask_cors import CORS, cross_origin
 import requests
 import datetime
 import json
 import dotenv
 import os
 import re
+
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -35,7 +42,7 @@ def parse_all_ipfs_data(metadata_url: str) -> dict:
     return metadata
 
 def parse_rule_file(contents: str) -> list([str, str]):
-    res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', contents)
+    res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', str(contents).replace("\r", ""))
     return [res.group(1), res.group(2)]
 
 def check_regex_validity(regex: str) -> bool:
@@ -45,12 +52,18 @@ def check_regex_validity(regex: str) -> bool:
         return False
     return True
 
-def parse_rg_file(rg_file: str) -> list([str, str]):
-    if not rg_file or not rg_file.endswith(".rg"):
+def parse_rg_file(rg_file: str, web: bool) -> list([str, str]):
+    rule, info = ["", ""]
+    if not web and (not rg_file or not rg_file.endswith(".rg")):
         raise Exception("File is not a .rg file")
-    with open(rg_file, "r") as f:
-        contents = f.read()
-    rule, info = parse_rule_file(contents)
+    
+    if not web:
+        with open(rg_file, "r") as f:
+            contents = f.read()
+        rule, info = parse_rule_file(contents)
+    else:
+        rule, info = parse_rule_file(rg_file)
+    
     if not rule or not info:
         raise Exception("Invalid formatting in .rg file")
     if not check_regex_validity(rule):
@@ -58,7 +71,7 @@ def parse_rg_file(rg_file: str) -> list([str, str]):
     return rule, info
 
 # {'ok': True, 'value': {'ipnft': 'bafyreigjo7fx4aue7uxsnytuaavpznrpgvsbkdksppznne6gsnjf5bam34', 'url': 'ipfs://bafyreigjo7fx4aue7uxsnytuaavpznrpgvsbkdksppznne6gsnjf5bam34/metadata.json', 'data': {'name': 'test-rule-nobreak.rg', 'rule': 'ipfs://bafybeiewemksdxscjv7olvpw6bab2tycprgbpevvfctlwgfiyit3kmtsty/test-rule-nobreak.rg', 'info': ['https://cwe.mitre.org/data/definitions/94.html']}}} 
-def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict) -> dict:
+def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict, web: bool) -> dict:
     fields = [] # options for us: "name", "description", "tags", "category", "image", "image_url"
     if IPFS_KEY is None:
         raise Exception("IPFS_KEY not set")
@@ -69,13 +82,17 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict) -> dict:
     
     # Check if file is a valid .rg file
     try:
-        rule, info = parse_rg_file(rg_file)
+        rule, info = parse_rg_file(rg_file.decode('utf-8'), web)
         obj_metadata["rule"] = rule
         obj_metadata["info"] = info.split("\n")
 
         url = "https://api.nft.storage/store"
         payload = {'meta': json.dumps(obj_metadata)}
-        files = [('rule', (obj_metadata["name"], open(rg_file, "rb"), "text/plain"))]
+
+        if web:
+            files = [('rule', (obj_metadata["name"], rg_file, 'text/plain'))]
+        else:
+            files = [('rule', (obj_metadata["name"], open(rg_file, "rb"), "text/plain"))]
 
         headers = {
             'Authorization': f'Bearer {IPFS_KEY}',
@@ -89,8 +106,18 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict) -> dict:
     except Exception as e:
         raise e
 
-# Test local rule file upload
-#print(upload_rule_to_ipfs("test.rg", {"name": "test-rule.rg", "rule": "undefined"}))
-# print(parse_rg_file("test.rg"))
-# Test ipfs file retrieval
-print(parse_all_ipfs_data("https://ipfs.io/ipfs/bafyreia6fbjsjgp66mgbhx6fuogab6m445uztfplmmpx74ahxsl2gzb7ti/metadata.json"))
+@cross_origin()
+@app.route("/upload", methods=["POST"])
+def upload():
+    name = request.form.get("name")
+    file_from_form = request.files['files[]']
+
+    if name is None:
+        name = file_from_form.filename
+
+    print(upload_rule_to_ipfs(file_from_form.read(), {"name": name, "rule":"undefined"}, True))
+    return "OK", 200
+
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080, debug=True)
