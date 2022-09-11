@@ -7,6 +7,7 @@
     /* gap: 30px; */
     margin: 0 auto;
     margin-top: 15%;
+    position: relative;
 }
 
 .landing h1 {
@@ -68,5 +69,20 @@
     }
     100% {
         opacity: 0;
+    }
+}
+
+.peggy2 {
+    z-index: 10;
+    left: 700px;
+    top: 220px;
+    width: 140px;
+    animation: bounce 2.2s linear infinite;
+    position: absolute;
+}
+
+@keyframes bounce {
+    50% {
+        margin-top: 40px;
     }
 }

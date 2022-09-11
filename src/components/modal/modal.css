@@ -13,7 +13,7 @@
 }
 
 .modal {
-    width: 50%;
+    width: 60%;
     background-color: var(--w);
     padding: 20px;
     border-radius: 22px;
@@ -46,7 +46,7 @@
 
 .manny {
     display: flex;
-    gap: 20px;
+    gap: 100px;
 }
 
 .row {
@@ -58,10 +58,6 @@
     width: 100%;
 }
 
-.lefty {
-    /* width: 40%; */
-}
-
 .lefty button {
     padding: 8px 10px;
     border: none;
@@ -70,12 +66,36 @@
     font-weight: 500;
     border-radius: 6px;
     width: 160px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .lefty button:hover {
     cursor: pointer;
     opacity: 0.8;
     transition: 0.2s;
+}
+
+.lefty button input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80%;
+    opacity: 0;
+    box-sizing: border-box;
+}
+
+.lefty button input:hover {
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.lefty button img {
+    width: 14px;
 }
 
 .lefty input {
@@ -87,4 +107,17 @@
 
 .lefty input:focus {
     outline-color: var(--dark);
+}
+
+.rule-result {
+    margin-bottom: 10px;
+    transition: 0.2s;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.rule-result:hover {
+    background-color: #eef0f4;
+    transition: 0.2s;
+    padding: 6px 10px;
 }
