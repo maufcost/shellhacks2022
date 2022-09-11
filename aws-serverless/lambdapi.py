@@ -1,1 +1,0 @@
-# AWS Serverless Lambda Function
