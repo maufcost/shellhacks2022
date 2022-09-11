@@ -106,18 +106,70 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict, web: bool) -> dict:
     except Exception as e:
         raise e
 
+def upload_code_to_ipfs(code_bytes: bytes, obj_metadata: dict) -> dict:
+    fields = [] # options for us: "name", "description", "tags", "category", "image", "image_url"
+    if IPFS_KEY is None:
+        raise Exception("IPFS_KEY not set")
+
+    # Check if obj_metadata contains all fields
+    if not all(field in obj_metadata for field in fields):
+        raise Exception("obj_metadata missing fields")
+    
+    try:
+        url = "https://api.nft.storage/store"
+        payload = {'meta': json.dumps(obj_metadata)}
+
+        files = [('code', (obj_metadata["name"], code_bytes, 'text/plain'))]
+
+        headers = {
+            'Authorization': f'Bearer {IPFS_KEY}',
+            'accept': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload, files=files)
+        if response.status_code != 200:
+            raise Exception(response.text)
+        return response.json()
+    except Exception as e:
+        raise e
+
 @cross_origin()
-@app.route("/upload", methods=["POST"])
-def upload():
+@app.route("/upload-rule", methods=["POST"])
+def upload_rule():
     name = request.form.get("name")
     file_from_form = request.files['files[]']
 
     if name is None:
         name = file_from_form.filename
 
-    print(upload_rule_to_ipfs(file_from_form.read(), {"name": name, "rule":"undefined"}, True))
-    return "OK", 200
+    return upload_rule_to_ipfs(file_from_form.read(), {"name": name, "rule":"undefined"}, True)
 
+@cross_origin()
+@app.route("/upload-code", methods=["POST"])
+def upload_code():
+    lang_map = {
+        "py": "Python",
+        "js": "JavaScript",
+        "c": "C",
+        "ts": "TypeScript",
+        "go": "Go",
+        "java": "Java",
+        "rb": "Ruby",
+        "rs": "Rust",
+        "php": "PHP",
+    }
+    name = request.form.get("name")
+    file_from_form = request.files['files[]']
+
+    if name is None:
+        name = file_from_form.filename
+    
+    # define programming language from file extension
+    end = file_from_form.filename.split(".")[-1]
+    lang = lang_map.get(end, "Unknown")
+
+    return upload_code_to_ipfs(file_from_form.read(), {"name": name, "language": lang}), 200
+    
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
