@@ -75,6 +75,8 @@ const Modal = props => {
                     let data = await response.json();
                     console.log(data);
                     setIpfsRule(data.value.url);
+                    alert("Rule uploaded successfully!");
+                    alert(data.value.url);
                 });
             };
 
@@ -138,7 +140,6 @@ const Modal = props => {
                                 )
                             })}
                         </div>
-                        <p>{ruleIPFS}</p>
                     </div>
                     <div className="righty">
                         <p className="title">Your organization's custom rule set</p>

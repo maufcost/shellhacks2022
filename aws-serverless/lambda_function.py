@@ -197,17 +197,18 @@ def lambda_handler(event, context):
         body = json.loads(body)
         code = body.get('code')
         code = parse_ipfs_code_from(code).replace("\r", "")
-        # stale = body.get('rules')
-        # print(code)
+        stale = body.get('rules')
+        print(code)
 
-        # list_of_metadatas = get_all_rules()
-        # for each_meta in list_of_metadatas:
-        #     metadata = parse_ipfs_url_data(each_meta)
-        #     print(metadata)
-        #     rule = parse_ipfs_rule_details((metadata["rule"])).replace("\r", "")
-        #     list_of_rules.append(rule)
+        list_of_metadatas = get_all_rules()
+        for each_meta in list_of_metadatas:
+            metadata = parse_ipfs_url_data(each_meta)
+            print(metadata)
+            rule = parse_ipfs_rule_details((metadata["rule"])).replace("\r", "")
+            list_of_rules.append(rule)
 
-        scan_res = scan_code(code, [(buff, buff_info)])
+        # Current implementation is slow bc of IFPS 
+        scan_res = scan_code(code, list_of_rules)
 
         return {
             'statusCode': 200,
