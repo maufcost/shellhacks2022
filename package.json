@@ -1,5 +1,6 @@
 {
   "name": "shellhacks2022",
+  "proxy": "https://ctb2mpkb6mm73tu4yxwvj5zag40hyrdl.lambda-url.us-east-1.on.aws",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

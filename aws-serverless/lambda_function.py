@@ -3,8 +3,29 @@ import base64
 import re
 import requests
 import os
+import pymongo
 
 IPFS_KEY = os.environ['IPFS_KEY']
+MONGO_KEY = os.environ['MONGO_KEY'] # Only for indexing ifps links
+db_client = pymongo.MongoClient(f"mongodb+srv://midpoint:{MONGO_KEY}@cluster0.fbsnlnc.mongodb.net/?retryWrites=true&w=majority")
+
+# Add a new rule metadata *ipfs link* to the database
+def add_ipfs_rule_to_db(ipfs_metadata_url):
+    db = db_client["pegasus"]
+    collection = db["cyber-rules"]
+    if collection.find_one({"rule_meta": ipfs_metadata_url}):
+        return False
+    collection.insert_one({"rule_meta": ipfs_metadata_url})
+    return True
+
+# get all ipfs links from the database
+def get_all_rules():
+    db = db_client["pegasus"]
+    collection = db["cyber-rules"]
+    all_rules = collection.find({})
+    all_rules = [rule['rule_meta'] for rule in all_rules]
+    return all_rules
+
 
 def parse_rule_file(contents: str) -> list([str, str]):
     res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', str(contents).replace("\r", ""))
@@ -106,31 +127,33 @@ def getVulnSeverity(numLines: int, numVulns: int) -> int:
 	return 2
 
 def scan_code(code: str, ruleFiles: list([str])) -> tuple:
-	vulns = []
-	for ruleFile in ruleFiles:
-		rule, info = parse_rule_file(ruleFile)
-		if b'<<' in rule.encode():
-			regexRes = re.match(r'(.*)<<(.*)>>', rule.encode())
-			rule = regexRes.group(1)
-			ruleParams = regexRes.group(2)
-		paramsEval = True
-		ruleRes = re.search(rule, code)
-		try:
-			charactersToHighlight=ruleRes.span()
-			if paramsEval:
-				vulnInfo = [info, charactersToHighlight]
-				vulns.append(vulnInfo)
-		except:
-			pass
-	vulnDisplay = []
-	fileLines = code.encode().split(b'\n')
-	for i in range(len(vulns)):
-		chars = vulns[i][1]
-		numNewLinesStart = code.encode()[:chars[0]].count(b'\n') + 1
-		numNewLinesEnd = code.encode()[:chars[1]].count(b'\n') + 1
-		vulns[i][1] = [numNewLinesStart, numNewLinesEnd]
-
-	return vulns, getVulnSeverity(len(fileLines), len(vulns))
+    vulns = []
+    for ruleFile in ruleFiles:
+        if type(ruleFile) == tuple:
+            rule, info = ruleFile
+        else:
+            rule, info = parse_rule_file(ruleFile)
+        if b'<<' in rule.encode():
+            regexRes = re.match(r'(.*)<<(.*)>>', rule.encode())
+            rule = regexRes.group(1)
+            ruleParams = regexRes.group(2)
+        paramsEval = True
+        ruleRes = re.search(rule, code)
+        try:
+            charactersToHighlight=ruleRes.span()
+            if paramsEval:
+                vulnInfo = [info, charactersToHighlight]
+                vulns.append(vulnInfo)
+        except:
+            pass
+        vulnDisplay = []
+        fileLines = code.encode().split(b'\n')
+    for i in range(len(vulns)):
+        chars = vulns[i][1]
+        numNewLinesStart = code.encode()[:chars[0]].count(b'\n') + 1
+        numNewLinesEnd = code.encode()[:chars[1]].count(b'\n') + 1
+        vulns[i][1] = [numNewLinesStart, numNewLinesEnd]
+    return vulns, getVulnSeverity(len(fileLines), len(vulns))
 
 def lambda_handler(event, context):
     # If the request is a POS to /upload-rule, then upload the rule to IPFS
@@ -139,6 +162,7 @@ def lambda_handler(event, context):
         rule = event.get("body")
         decoded_rule = base64.b64decode(rule)
         res = upload_rule_to_ipfs(decoded_rule, {"name":"name", "rule":"undefined"})
+        add_ipfs_rule_to_db(res["value"]["url"])
         return {
             'statusCode': 200,
             'body': json.dumps(res)
@@ -166,21 +190,24 @@ def lambda_handler(event, context):
         }
     
     if event.get("requestContext").get('http').get("method") == 'POST' and event.get("requestContext").get('http').get("path") == '/code-analysis':
+        buff = "(\w+)\s?\[(\d+)\].*[\s+\S+]+(fgets\s?\(\s?\1\s?,\s?(\d+)\s?,.*\))".replace("\r", "")
+        buff_info = "Stack-Based Buffer Overflow Resulting from function fgets() reading into buffer of insufficient size\nhttps://cwe.mitre.org/data/definitions/121.html"
         body = event.get("body")
         list_of_rules = []
         body = json.loads(body)
         code = body.get('code')
         code = parse_ipfs_code_from(code).replace("\r", "")
-        print(code)
+        # stale = body.get('rules')
+        # print(code)
 
-        list_of_metadatas = body.get('rules')
-        for each_meta in list_of_metadatas:
-            metadata = parse_ipfs_url_data(each_meta)
-            print(metadata)
-            rule = parse_ipfs_rule_details((metadata["rule"])).replace("\r", "")
-            list_of_rules.append(rule)
+        # list_of_metadatas = get_all_rules()
+        # for each_meta in list_of_metadatas:
+        #     metadata = parse_ipfs_url_data(each_meta)
+        #     print(metadata)
+        #     rule = parse_ipfs_rule_details((metadata["rule"])).replace("\r", "")
+        #     list_of_rules.append(rule)
 
-        scan_res = scan_code(code, list_of_rules)
+        scan_res = scan_code(code, [(buff, buff_info)])
 
         return {
             'statusCode': 200,
