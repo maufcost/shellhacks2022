@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import re
+from pathlib import Path
 
 
 # For use of API
@@ -24,8 +25,8 @@ The information on the vulnerability (eg. mitre links and recommendations)
 
 
 '''
-def parse_rule_file(contents: str) -> List[str, str]:
-	res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\w+\n+\s+]+)', contents)
+def parse_rule_file(contents: str) -> list[str, str]:
+	res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', contents)
 	return [res.group(1), res.group(2)]
 
 
@@ -35,11 +36,11 @@ This can be interpreted as: Excellent, Good, Bad
 
 Uses an arbitrary metric of: Every 500 lines of code may have a vulnerability
 '''
-def getVulnSeverity(fileLines: List[str], numVulns: int) -> int:
+def getVulnSeverity(numLines: int, numVulns: int) -> int:
 	if numVulns == 0:
 		return numVulns
 
-	if numVulns <= len(fileLines) // 500:
+	if numVulns <= numLines // 500:
 		return 1
 
 	return 2
@@ -48,26 +49,27 @@ def getVulnSeverity(fileLines: List[str], numVulns: int) -> int:
 Check all rules against the code.
 
 '''
-def scan_code(code: str, ruleFiles: str) -> List[Any]:
+def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 	vulns = []
 
 	# Check how many vulnerabilities
 
 	for ruleFile in ruleFiles:
-
 		rule, info = parse_rule_file(ruleFile)
-
-		regexRes = re.match(r'(.*)<<(.*)>>', rule)
-		reg = regexRes.group(1)
-		ruleParams = regexRes.group(2)
+		# print(rule, info)
+		if "<<" in rule:
+			regexRes = re.match(r'(.*)<<(.*)>>', rule)
+			reg = regexRes.group(1)
+			ruleParams = regexRes.group(2)
+		else:
+			reg = rule
 
 		# TODO: Perform eval for complex rules.
 		# Possibly use python parse library
 		# paramsEval = eval()
 		paramsEval = True
 
-
-		ruleRes = re.match(rule, code)
+		ruleRes = re.match(reg, code)
 		try:
 			charactersToHighlight=ruleRes.span() # tuple with start to end char
 			
@@ -75,7 +77,7 @@ def scan_code(code: str, ruleFiles: str) -> List[Any]:
 			# then add to the vulnerability list
 			if paramsEval:
 				vulnInfo = [info, charactersToHighlight]
-				vulns.append(charactersToHighlight)
+				vulns.append(vulnInfo)
 		except:
 			pass
 
@@ -113,14 +115,30 @@ def scanner_api():
 
 	
 
+# Read in all the files
+
+codePath = './example_code/buf1.c'
+rulesPath = './example_rules' # this should be changed to './rules if running locally'
+
+rules = []
+
+## TODO: Make this decentralized
+
+# Read in rules from local directory
+for path in Path(rulesPath).rglob('*.rg'):
+	with open(path, 'r') as fin:
+		rules.append(fin.read().rstrip())
+
+with open(codePath) as fin:
+	code = fin.read().rstrip()
+
+print(scan_code(code, rules))
+
+# Scan code with the file
 
 
-s = '''
-% Rule
-stuf
-% Info
-link
-stuff and things
-'''.lstrip()
 
-print(parse_rule_file(s))
+
+
+
+
