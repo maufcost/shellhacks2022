@@ -45,7 +45,7 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict) -> str:
     try:
         rule, info = parse_rg_file(rg_file)
         obj_metadata["rule"] = rule
-        obj_metadata["info"] = info
+        obj_metadata["info"] = info.split("\n")
 
         url = "https://api.nft.storage/store"
         payload = {'meta': json.dumps(obj_metadata)}
@@ -63,4 +63,4 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict) -> str:
     except Exception as e:
         raise e
 
-print(upload_rule_to_ipfs("test.rg", {"name": "Test Rule", "rule": "undefined"}))
+print(upload_rule_to_ipfs("test.rg", {"name": "test-rule.rg", "rule": "undefined"}))
