@@ -72,8 +72,12 @@ def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 		# Possibly use python parse library
 		# paramsEval = eval()
 		paramsEval = True
-
-		ruleRes = re.search(rule, code)
+		try:
+			ruleRes = re.search(rule, code)
+		except:
+			print(rule)
+			# does not apply
+			pass
 		try:
 			charactersToHighlight=ruleRes.span() # tuple with start to end char
 			
@@ -127,7 +131,7 @@ def scanner_api():
 
 # Read in all the files
 
-codePath = './example_code/buf1.c'
+codePath = './example_code/Kattis_PhDCandidate.py'
 rulesPath = './example_rules' # this should be changed to './rules if running locally'
 
 rules = []
@@ -141,6 +145,7 @@ for path in Path(rulesPath).rglob('*.rg'):
 
 with open(codePath, 'rb') as fin:
 	code = fin.read().rstrip()
+	code.replace(b'\r',b'')
 
 print(scan_code(code, rules))
 
