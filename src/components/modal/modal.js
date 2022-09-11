@@ -14,6 +14,7 @@ const Modal = props => {
     const [file, setFile] = useState(null)
     const [rules, setRules] = useState([])
     const [ruleString, setRuleString] = useState("")
+    const [ruleIPFS, setIpfsRule] = useState("")
 
     const fileReader = new FileReader()
 
@@ -65,6 +66,16 @@ const Modal = props => {
             fileReader.onload = event => {
                 const output = event.target.result
                 setRuleString(output)
+                const bytes = new TextEncoder().encode(output)
+                fetch("/upload-rule", {
+                    method: "POST",
+                    body: bytes
+                })
+                .then( async response => {
+                    let data = await response.json();
+                    console.log(data);
+                    setIpfsRule(data.value.url);
+                });
             };
 
             // Reads source code as a regular string.
@@ -73,7 +84,7 @@ const Modal = props => {
     }
 
     const handleSubmit = () => {
-
+        setIpfsRule("Uploading to ipfs...");
     }
 
     const handleSearch = () => {
@@ -127,6 +138,7 @@ const Modal = props => {
                                 )
                             })}
                         </div>
+                        <p>{ruleIPFS}</p>
                     </div>
                     <div className="righty">
                         <p className="title">Your organization's custom rule set</p>
