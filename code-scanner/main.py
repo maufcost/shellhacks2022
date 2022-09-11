@@ -45,6 +45,10 @@ def getVulnSeverity(numLines: int, numVulns: int) -> int:
 
 	return 2
 
+def getVulnPassFail(numVulns):
+	if numVulns > 0:
+		return 1
+	return 0
 '''
 Check all rules against the code.
 
@@ -89,7 +93,7 @@ def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 	# vulnDisplay = []
 	fileLines = code.split(b'\n')
 
-	return vulns, getVulnSeverity(len(fileLines), len(vulns))
+	return vulns, getVulnPassFail(len(vulns))
 
 '''
 potential api for scanning code. 
