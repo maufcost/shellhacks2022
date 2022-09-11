@@ -16,6 +16,42 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 dotenv.load_dotenv()
 IPFS_KEY = os.getenv("IPFS_KEY", None)
 
+def getVulnSeverity(numLines: int, numVulns: int) -> int:
+	if numVulns == 0:
+		return numVulns
+
+	if numVulns <= numLines // 500:
+		return 1
+
+	return 2
+
+def scan_code(code: str, ruleFiles: list([str])) -> tuple:
+	vulns = []
+	for ruleFile in ruleFiles:
+		rule, info = parse_rule_file(ruleFile)
+		if b'<<' in rule.encode():
+			regexRes = re.match(r'(.*)<<(.*)>>', rule.encode())
+			rule = regexRes.group(1)
+			ruleParams = regexRes.group(2)
+		paramsEval = True
+		ruleRes = re.search(rule, code)
+		try:
+			charactersToHighlight=ruleRes.span()
+			if paramsEval:
+				vulnInfo = [info, charactersToHighlight]
+				vulns.append(vulnInfo)
+		except:
+			pass
+	vulnDisplay = []
+	fileLines = code.encode().split(b'\n')
+	for i in range(len(vulns)):
+		chars = vulns[i][1]
+		numNewLinesStart = code.encode()[:chars[0]].count(b'\n') + 1
+		numNewLinesEnd = code.encode()[:chars[1]].count(b'\n') + 1
+		vulns[i][1] = [numNewLinesStart, numNewLinesEnd]
+
+	return vulns, getVulnSeverity(len(fileLines), len(vulns))
+
 '''
 Takes the url to an ipfs code object and return the entire code
 '''
@@ -121,7 +157,7 @@ def upload_rule_to_ipfs(rg_file: str, obj_metadata: dict, web: bool) -> dict:
         rule, info = parse_rg_file(rg_file.decode('utf-8'), web)
         obj_metadata["rule"] = rule
         obj_metadata["info"] = info.split("\n")
-
+        print(obj_metadata)
         url = "https://api.nft.storage/store"
         payload = {'meta': json.dumps(obj_metadata)}
 
@@ -210,7 +246,19 @@ def upload_code():
     lang = lang_map.get(end, "Unknown")
 
     return upload_code_to_ipfs(file_from_form.read(), {"name": name, "language": lang}), 200
-    
+
+@cross_origin()
+@app.route("/code-analysis", methods=["POST"])
+def code_analysis():
+    list_of_rules = []
+    code = ""
+    code = parse_ipfs_code_from("ipfs://bafybeihyjwvvgmumyzpiqsmt5cgyiycadhqp4t2yohzgij3tedw7hqne2q/vulnerable.c").replace("\r", "")
+    print(code)
+    metadata = parse_ipfs_url_data("ipfs://bafyreidw3ffsqpdwklnmzlcuzwufdktic4cs5lvfbsfpwv3knqodxs3l34/metadata.json")
+    print(metadata)
+    rule = parse_ipfs_rule_details((metadata["rule"])).replace("\r", "")
+    list_of_rules.append(rule)
+    return jsonify(scan_code(code, list_of_rules)), 200
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
