@@ -1,0 +1,90 @@
+.modal-container {
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    width: 50%;
+    background-color: var(--w);
+    padding: 20px;
+    border-radius: 22px;
+    box-shadow: 0 0 20px #e8e8e8;
+}
+
+.modal header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.modal header button {
+    color: #82888d;
+    border: none;
+    background-color: var(--w);
+}
+
+.modal header button:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.modal header .title {
+    font-weight: 800;
+    font-size: 1.4em;
+}
+
+.manny {
+    display: flex;
+    gap: 20px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+    width: 100%;
+}
+
+.lefty {
+    /* width: 40%; */
+}
+
+.lefty button {
+    padding: 8px 10px;
+    border: none;
+    background-color: var(--dark);
+    color: var(--w);
+    font-weight: 500;
+    border-radius: 6px;
+    width: 160px;
+}
+
+.lefty button:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.lefty input {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #82888d;
+    box-sizing: border-box;
+}
+
+.lefty input:focus {
+    outline-color: var(--dark);
+}

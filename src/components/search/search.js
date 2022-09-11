@@ -64,7 +64,7 @@ const Search = () => {
             
             // Returns a single object
             const obj = csvHeader.reduce((object, header, index) => {
-                object[header] = values[index].replace(" ", "")
+                object[header] = values[index] // .replace(" ", "")
                 return object
             }, {});
 
