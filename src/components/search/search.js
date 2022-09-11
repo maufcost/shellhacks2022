@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 // Styling files
 import './search.css'
@@ -25,11 +25,13 @@ const Search = () => {
     const [csvArray, setCSVArray] = useState([])
     const [securities, setSecurities] = useState([])
     const [startEngine, setStartEngine] = useState(null)
-    const [selectedTab, setSelectedTab] = useState(TAB_SECURITIES)
     const [searchResults, setSearchResults] = useState([])
     const [csvImportDone, setCSVImportDone] = useState(null)
+    const [selectedTab, setSelectedTab] = useState(TAB_SECURITIES)
 
     const fileReader = new FileReader()
+
+    let test = []
 
     const handleFileChange = e => {
         if (!e) return
@@ -66,10 +68,10 @@ const Search = () => {
             const obj = csvHeader.reduce((object, header, index) => {
                 object[header] = values[index] // .replace(" ", "")
                 return object
-            }, {});
+            }, {})
 
             return obj
-        });
+        })
 
         setCSVArray(csvArray)
     }
