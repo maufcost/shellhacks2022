@@ -11,7 +11,6 @@ app = Flask(__name__)
 CORS(app)
 
 
-
 '''
 For internal use only
 
@@ -44,6 +43,12 @@ def getVulnSeverity(numLines: int, numVulns: int) -> int:
 		return 1
 
 	return 2
+
+def vulnDetection(numVulns: int) -> int:
+	if(numVulns == 0):
+		return numVulns
+	return 1
+
 
 '''
 Check all rules against the code.
@@ -82,12 +87,18 @@ def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 
 
 	# Parse initial vulnerability analysis 
-
-	
-	## TODO: Change from highlighting characters to highlighting lines
-
-	# vulnDisplay = []
+	vulnDisplay = []
 	fileLines = code.split(b'\n')
+	for i in range(len(vulns)):
+		chars = vulns[i][1]
+
+
+		numNewLinesStart = code[:chars[0]].count(b'\n') + 1
+		numNewLinesEnd = code[:chars[1]].count(b'\n') + 1
+
+
+		vulns[i][1] = [numNewLinesStart, numNewLinesEnd]
+
 
 	return vulns, getVulnSeverity(len(fileLines), len(vulns))
 
