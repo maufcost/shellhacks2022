@@ -1,5 +1,5 @@
 % Rule
-(.*)\s?\[(\d+)\].*[\w+\n+]+(fgets\s?\(\s?\1\s?,\s?(\d+)\s?,.*\))<<\2 >= \4>>
+(.*)\s?\[(\d+)\].*[\s+\S+]+(fgets\s?\(\s?\1\s?,\s?(\d+)\s?,.*\))
 
 % Info
 https://cwe.mitre.org/data/definitions/121.html
