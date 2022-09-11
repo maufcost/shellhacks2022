@@ -1,5 +1,3 @@
-from msilib.schema import File
-from wsgiref import headers
 import requests
 import datetime
 import json
