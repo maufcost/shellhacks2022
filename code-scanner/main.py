@@ -26,7 +26,7 @@ The information on the vulnerability (eg. mitre links and recommendations)
 
 '''
 def parse_rule_file(contents: str) -> list[str, str]:
-	res = re.search(r'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', contents)
+	res = re.search(rb'% Rule\n+(.*)\n+% Info\n+([\s+\S+]+)', contents)
 	return [res.group(1), res.group(2)]
 
 
@@ -57,19 +57,18 @@ def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 	for ruleFile in ruleFiles:
 		rule, info = parse_rule_file(ruleFile)
 		# print(rule, info)
-		if "<<" in rule:
+		if b'<<' in rule:
 			regexRes = re.match(r'(.*)<<(.*)>>', rule)
-			reg = regexRes.group(1)
+			rule = regexRes.group(1)
 			ruleParams = regexRes.group(2)
-		else:
-			reg = rule
+
 
 		# TODO: Perform eval for complex rules.
 		# Possibly use python parse library
 		# paramsEval = eval()
 		paramsEval = True
 
-		ruleRes = re.match(reg, code)
+		ruleRes = re.search(rule, code)
 		try:
 			charactersToHighlight=ruleRes.span() # tuple with start to end char
 			
@@ -88,7 +87,7 @@ def scan_code(code: str, ruleFiles: list[str]) -> tuple:
 	## TODO: Change from highlighting characters to highlighting lines
 
 	# vulnDisplay = []
-	fileLines = code.split('\n')
+	fileLines = code.split(b'\n')
 
 	return vulns, getVulnSeverity(len(fileLines), len(vulns))
 
@@ -126,10 +125,10 @@ rules = []
 
 # Read in rules from local directory
 for path in Path(rulesPath).rglob('*.rg'):
-	with open(path, 'r') as fin:
+	with open(path, 'rb') as fin:
 		rules.append(fin.read().rstrip())
 
-with open(codePath) as fin:
+with open(codePath, 'rb') as fin:
 	code = fin.read().rstrip()
 
 print(scan_code(code, rules))
