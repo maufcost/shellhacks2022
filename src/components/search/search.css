@@ -24,6 +24,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
 }
 
 .csv-form .file-input-container {
@@ -136,4 +137,18 @@
 
 .search-icon.scootch {
     left: 164px;
+}
+
+.peggy {
+    z-index: 10;
+    left: 460px;
+    width: 100px;
+    animation: bounce 2.2s linear infinite;
+    position: absolute;
+}
+
+@keyframes bounce {
+    50% {
+        margin-top: 40px;
+    }
 }

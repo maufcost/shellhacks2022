@@ -11,6 +11,7 @@ import Vulnerability from '../vulnerability/vulnerability'
 import SearchResult from '../search-result/search-result'
 
 // Assets
+import Pegasus from '../../assets/pegasus.png'
 import IconSearch from '../../assets/icon-search.svg'
 
 // Constants
@@ -33,7 +34,7 @@ const Search = () => {
     const handleFileChange = e => {
         if (!e) return
         setFile(e.target.files[0])
-    };
+    }
 
     const handleFileImport = e => {
         e.preventDefault()
@@ -48,7 +49,7 @@ const Search = () => {
             // Reads CSV as a regular string.
             fileReader.readAsText(file)
         }
-    };
+    }
 
     const convertCSVFileToArray = csvString => {
         // We first get all the header labels
@@ -213,6 +214,7 @@ const Search = () => {
                         }}>
                             Import CSV
                         </button>
+                        <img src={Pegasus} className="peggy" />
                     </div>
                     <div className="query-area">
                         {renderSecuritiesDropdown()}
