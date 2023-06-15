@@ -251,7 +251,6 @@ def upload_code():
 @app.route("/code-analysis", methods=["POST"])
 def code_analysis():
     list_of_rules = []
-    code = ""
     code = parse_ipfs_code_from("ipfs://bafybeihyjwvvgmumyzpiqsmt5cgyiycadhqp4t2yohzgij3tedw7hqne2q/vulnerable.c").replace("\r", "")
     print(code)
     metadata = parse_ipfs_url_data("ipfs://bafyreidw3ffsqpdwklnmzlcuzwufdktic4cs5lvfbsfpwv3knqodxs3l34/metadata.json")
